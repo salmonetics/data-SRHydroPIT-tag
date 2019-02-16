@@ -29,8 +29,19 @@ getAllYears <- function(){
   for(i in 2005:2018)df <- rbind(df,getAllDams(i))
   return(df)
 }
+
+setDayOfYear <- function(df){
+  df$Year <- year(df$Date)
+  df$Day <- yday(df$Date)
+  df$Date <- NULL
+  return(df)
+}
+
 writeDamData <- function(){
 damdata <- getAllYears()
 damdata <- replace_na(damdata,list(Outflow=-1,Spill=-1,TempSC=-1,Temp=-1,Dgas=-1,Elev=-1,TempTW=-1,DgasTW=-1,ElevTW=-1))
+damdata <- setDayOfYear(damdata)
 write.csv(damdata %>% select(-Inflow),"damdata2005-2018.csv",row.names=F)
  }
+
+
