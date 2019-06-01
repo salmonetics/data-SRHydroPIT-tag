@@ -1,4 +1,4 @@
-"ant","obs_site","tag_id","filename","subbasin","subbasin_name","etype","rel_date","date","run","NULL","count","rtype","length","transported","year","mindate","maxdate"
+"ant","obs_site","tag_id","filename","subbasin","subbasin_name","etype","rel_date","date","run","species","count","rtype","length","transported","year","mindate","maxdate"
 "VERTICAL SLOT DETECTORS","BO1","384.3B23A19B19","CCC14158.SHD",17080001,"Lower Columbia-Sandy","Observation",2014-06-07,2014-06-25 18:18:34,"N/A","American Shad",1,"W",NA,FALSE,NA,NA,NA
 "Counting Window","TD1","384.3B23A19B19","CCC14158.SHD",17080001,"Lower Columbia-Sandy","Observation",2014-06-07,2014-06-27 04:11:46,"N/A","American Shad",1,"W",NA,FALSE,NA,NA,NA
 "15X15 FULL-FLOW ANTENNA","BCC","384.3B23A19B19","CCC14158.SHD",17080001,"Lower Columbia-Sandy","Observation",2014-06-07,2014-07-17 00:45:48,"N/A","American Shad",1,"W",NA,FALSE,NA,NA,NA
