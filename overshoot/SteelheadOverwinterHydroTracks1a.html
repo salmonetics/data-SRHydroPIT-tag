@@ -1,0 +1,1353 @@
+<html lang="en">
+<head>
+    <title>Steelhead Overwintering PIT-Tag Detections</title>
+
+    <meta charset="UTF-8">
+	<link rel="stylesheet" type="text/css" href="/script/dc.js/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/script/dc.js/dc.css"/>
+	<script src="/script/jquery-1.12.2.min.js"></script>
+	<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="/script/crossfilter.min.js"></script>
+	<script type="text/javascript" src="/script/dc.js/dc.js.2.min.js"></script>
+	<script type="text/javascript" src="/script/dc.js/colorbrewer.js"></script>
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="SitesBasins.js"></script>
+	<script type="text/javascript" src="CrossTrack5a.js"></script>
+	<style>
+	
+#fish_opacity_slider{
+	width: 125px;
+}
+#track_opacity_slider{
+	width: 125px;
+}
+#flowscale_slider{
+	width: 125px;
+}
+.control {margin:5px;}
+
+#datarow {
+	height: 300px;
+	overflow: scroll;
+}
+
+
+#spinner * { 
+	filter: none; 
+	-moz-opacity: 100%; 
+	position: absolute;
+	top: 200px;
+	left: 650px;
+}
+	
+
+svg	{ overflow: hidden; }
+	
+	table {
+	margin: 10px;
+	padding-top: 2px;
+    padding-right: 10px;
+    padding-bottom: 2px;
+    padding-left: 10px;
+	}
+	
+.dc-table-label {
+font-weight: bold;
+}
+
+.header th {
+text-align: center;	
+}
+
+.tiptable {
+	font: 12px sans-serif;
+}
+
+.axis path, .axis line {
+    fill: none;
+    shape-rendering: crispedges;
+    stroke: #000000;
+}
+.grid .tick {
+    stroke: grey;
+    opacity: 0.5 !important;
+}
+.bar rect {
+        fill: #ed1e79;
+    }
+
+.bar text.value {
+	fill: black;
+}
+circle {
+    fill: none;
+    stroke: black; 
+    stroke-width: 1;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+div.tooltip {   
+  position: absolute;           
+  text-align: left;                            
+  padding: 2px;             
+  font: 16px sans-serif;        
+  background: #ccc;   
+  border: 0px;      
+  border-radius: 8px;           
+  pointer-events: none;         
+}
+
+text {
+  cursor: default;
+}
+
+path.line:hover{
+	stroke-width: 2px;
+}
+
+.background path {
+  fill: none;
+  stroke: #ddd;
+  shape-rendering: crispEdges;
+}
+
+.foreground path {
+  fill: none;
+  stroke: steelblue;
+}
+
+.brush .extent {
+  fill-opacity: .3;
+  stroke: #fff;
+  shape-rendering: crispEdges;
+}
+
+.axis line,
+.axis path {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.axis text {
+  text-shadow: 0 1px 0 #fff, 1px 0 0 #fff, 0 -1px 0 #fff, -1px 0 0 #fff;
+  cursor: move;
+}
+
+input[type=range],
+	::-moz-range-track,
+	 ::-ms-track {
+	 -webkit-appearance: none;
+	 background-color: 3f91e5;
+	 width: 250px;
+	 height:40px;
+}
+
+input.vertical {
+	-webkit-appearance: slider-vertical;
+	writing-mode: bt-lr;
+}
+
+
+table td select{
+	font-size: smaller;
+}
+.dropdown_text, select{
+	font-size: 14px;
+}
+a {
+	color: black;
+	font-weight: bold;
+}
+select {
+	height: 26px;
+}
+
+.checkbox-dropdown {
+
+    width: 150px;
+    border: 1px solid silver;
+    cursor: pointer; /* use correct mouse pointer when hovering over the dropdown */
+    padding: 1px;
+    position: relative;
+    margin: 0 auto;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Display CSS arrow to the right of the dropdown text */
+.checkbox-dropdown:after {
+    content:'';
+    height: 0;
+    position: relative;
+    width: 0;
+    border: 6px solid transparent;
+    border-top-color: #000;
+    top: 0px;
+    right: 0px;
+
+    content: "";
+    width: 0;
+    height: 0;
+    position: absolute;
+    right: -15px;
+    top: 50%;
+    margin-top: -6px;
+    border-width: 6px 0 6px 6px;
+    border-style: solid;
+    border: 6px solid transparent;
+    border-top-color: #000; 	
+}
+
+/* Reverse the CSS arrow when the dropdown is active */
+.checkbox-dropdown.is-active:after {
+    border-bottom-color: #000;
+    border-top-color: #fff;
+    margin-top: -9px;
+}
+
+.checkbox-dropdown-list {
+	width: 150px;
+	background-color: aliceblue;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 100%; /* align the dropdown right below the dropdown text */
+    border: inherit;
+    border-top: none;
+    left: -1px; /* align the dropdown to the left */
+    right: -1px; /* align the dropdown to the right */
+    opacity: 0; /* hide the dropdown */
+    -webkit-transition: opacity 0.1s ease-in-out;
+    -moz-transition: opacity 0.1s ease-in-out;
+    -o-transition: opacity 0.1s ease-in-out;
+    -ms-transition: opacity 0.1s ease-in-out;
+    transition: opacity 0.1s ease-in-out;
+    pointer-events: none; /* avoid mouse click events inside the dropdown */
+}
+.is-active .checkbox-dropdown-list {
+    opacity: 1; /* display the dropdown */
+    pointer-events: auto; /* make sure that the user still can select checkboxes */
+}
+
+.checkbox-dropdown-list li label {
+    display: block;
+	margin-top: 5px;
+    border-bottom: 1px solid silver;
+    padding: 0px;
+    -webkit-transition: all 0.2s ease-out;
+    -moz-transition: all 0.2s ease-out;
+    -o-transition: all 0.2s ease-out;
+    -ms-transition: all 0.2s ease-out;
+    transition: all 0.2s ease-out;
+}
+
+.checkbox-dropdown-list li label:hover {
+
+}
+
+li{
+	margin-left: 5px;
+}
+
+	</style>
+</head>
+<body>
+<div class="container-fluid">
+<div class="row">
+<div class="span12">
+<h2>Steelhead Overwintering PIT-Tag Detections</h2>
+
+<div>
+<select id="data_selector" style="width: 300px" onchange="d3.select('#data_select_button').style('visibility','visible')">
+<option value="SteelheadOverwinter2019.csv">Steelhead 2019</option>
+<option value="SteelheadOverwinter2018.csv">Steelhead 2018</option>
+<option value="SteelheadOverwinter2017.csv">Steelhead 2017</option>
+<option value="SteelheadOverwinter2016.csv">Steelhead 2016</option>
+<option value="SteelheadOverwinter2015.csv">Steelhead 2015</option>
+<option value="SteelheadOverwinter2014.csv">Steelhead 2014</option>
+<option value="SteelheadOverwinter2013.csv">Steelhead 2013</option>
+<option value="SteelheadOverwinter2012.csv">Steelhead 2012</option>
+<option value="SteelheadOverwinter2011.csv">Steelhead 2011</option>
+<option value="SteelheadOverwinter2010.csv" selected>Steelhead 2010</option>
+</select> &nbsp;<input type="button" id="data_select_button" onclick="loadNewData()" name="Load" value="Load" style="visibility: hidden"/>
+</div>
+<div id="dc-data-count">
+        <span class="filter-count"></span> selected out of <span class="total-count"></span> fish&nbsp;<span><a href="javascript:dc.filterAll(); dc.renderAll(); drawSliders() ;params.updateFunctions = doTracks(params.fishtracks.options);">(reset all)</a></span>
+    </div>
+</div>
+</div>
+<div class="row">
+<div class="span4">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#filter1">Release</a></li>
+	<li><a data-toggle="tab" href="#filter2">Detection</a></li>
+	<li><a data-toggle="tab" href="#filter3">Advanced</a></li>
+  </ul>
+<div class="tab-content">
+    <div id="filter1" class="tab-pane fade in active">
+		<div id="chart-basin" class="control">
+			<div><strong>Release Basin</strong>
+			<a class="reset" href="javascript:basin.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>		
+		<div id="pie-subbasin" class="control">
+			<div><strong>Release Subbasin</strong>
+			<a class="reset" href="javascript:subbasin.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>	
+		<div id="pie-rel_site" class="control">
+			<div><strong>Release Site</strong>
+			<a class="reset" href="javascript:relsite.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>
+		<div id="pie-year" class="control">
+			<div><strong>Release Year</strong>
+			<a class="reset" href="javascript:year.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>
+<!--		
+		<div id="pie-rday" class="control">
+			<div><strong>Release Day</strong>
+			<a class="reset" href="javascript:rday.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>		
+-->		
+		<div id="chart-flength" class="control">
+			<div><strong>Release Length</strong>
+			<a class="reset" href="javascript:flength.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>		
+		<div id="pie-run" class="control">
+			<div><strong>Run</strong>
+			<a class="reset" href="javascript:run.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>
+		<div id="pie-rtype" class="control">
+			<div><strong>Rearing</strong>
+			<a class="reset" href="javascript:rtype.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>
+		<div id="pie-transport" class="control">
+			<div><strong>Transported</strong>
+			<a class="reset" href="javascript:transport.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>			
+	</div>	
+    <div id="filter2" class="tab-pane fade">
+		<div id="pie-overshoot" class="control">
+			<div><strong>Detected Overshoot </strong>
+			<a class="reset" href="javascript:overshoot.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>		
+		<div id="pie-overwinter" class="control">
+			<div><strong>Detected Overwinter </strong>
+			<a class="reset" href="javascript:overwinter.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>	
+		<div id="pie-inbasin" class="control">
+			<div><strong>Detected In Release Basin </strong>
+			<a class="reset" href="javascript:inbasin.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>
+	
+		<div id="pie-dsites" class="control">
+			<div><strong>Detected At</strong>
+			<a class="reset" href="javascript:dsites.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>			
+	</div>
+    <div id="filter3" class="tab-pane fade">
+		<table>
+		<tr><td><input id="filterlabel" type="text" placeholder="description&hellip;" size=15/></td><td><button type="button" onclick="addFilter('filterlabel')">Add</button></td></tr>
+		</table>
+	</div>
+    <div id="filter4" class="tab-pane fade">
+	</div>	
+</div>	
+</div>
+
+<div class="span14">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#filter10">Fish Tracks</a></li>
+	<li><a data-toggle="tab" href="#filter20">Analysis</a></li>
+	<li><a data-toggle="tab" href="#filter30">Help</a></li>
+  </ul>
+<div class="tab-content">
+	<div id="filter10" class="tab-pane fade in active">
+		<table><tr>
+		<td align="left">
+		<div class="checkbox-dropdown dropdown_text">Display Options
+			<ul class="checkbox-dropdown-list">
+				<li><b>Display:</b></li>
+				<li>
+					<label>
+						<input type="checkbox" class="snake_sites" onchange="toggleSnakeSites(this.checked)"/>&nbsp;Only Snake Juv</label></li>
+				
+				<li><b>Overlays:</b></li>
+				<li>
+					<label>
+						<input type="checkbox" class="snake_flows" onchange="toggleDamFlows(this.checked)"/>&nbsp;Snake Dam Flows</label></li>	
+				<li>
+					<label>
+						<input type="checkbox" class="snake_flowlines" onchange="toggleFlowlines(this.checked)"/>&nbsp;Snake Flowlines</label></li>												
+				<li><b>Fish Color:</b></li>
+				<li>
+					<label>
+						<input type="radio" name="fcolor" class="fcolor" onchange="toggleFColor('none')" checked/>&nbsp;None</label></li>	
+				<li>				
+					<label>
+						<input type="radio" name="fcolor" class="fcolor" onchange="toggleFColor('subbasin')"/>&nbsp;Release Subbasin</label></li>
+				<li>				
+					<label>
+						<input type="radio" name="fcolor" class="fcolor" onchange="toggleFColor('rel_site')"/>&nbsp;Release Site</label></li>						 
+				<li>
+					<label>
+						<input type="radio" name="fcolor" class="fcolor" onchange="toggleFColor('rtype')"/>&nbsp;Hatch/Wild</label></li>
+				<li>
+					<label>
+						<input type="radio" name="fcolor" class="fcolor" onchange="toggleFColor('rel_year')"/>&nbsp;Release Year</label></li>
+				<li>
+					<label>
+						<input type="radio" name="fcolor" class="fcolor" onchange="toggleFColor('transport')"/>&nbsp;Transport Site</label></li>						
+				<li>
+					<label>
+						<input type="radio" name="fcolor" class="fcolor" onchange="toggleFColor('run')"/>&nbsp;Run</label></li>						
+				<li>
+				<b>Fish Opacity</b><br/><input id="fish_opacity_slider" type = "range" min ="0" max="10" step ="1" value ="10"/>
+				</li>
+				<li>
+				<b>Track Opacity</b><br/><input id="track_opacity_slider" type = "range" min ="0" max="10" step ="1" value ="10"/>
+				</li>
+				<li>
+				<b>Flow Scaling</b><br/><input id="flowscale_slider" type = "range" min ="1" max="50" step ="5" value ="10"/>
+				</li>				
+			</ul>
+		</div>		
+		</td>
+		</tr>
+		</table>
+		<div id="fishplot">
+		</div>
+	</div>
+	<div id="filter20" class="tab-pane fade">
+
+		<div>
+		<div id="chart-fishpath" class="control">
+			<div><strong>Fish Path</strong>
+			<a class="reset" href="javascript:fishpath.filterAll();dc.redrawAll();" style="display: none;">reset</a>
+			</div>
+		</div>			
+		</div>
+	</div>
+	<div id="filter30" class="tab-pane fade">
+	Help is on the way...
+	</div>
+</div>
+</div>
+</div>
+
+<div class="row">
+
+</div>
+
+</div>
+
+
+
+<div id="spinner"><img src="/images/spinner.gif"></div>
+</body>
+<script>
+$("#flowscale_slider").on("input", function(){
+	params.fishtracks.options.flowscale = +this.value/10;
+	params.updateFunctions.updateFlowScale(params.fishtracks.options);
+});
+
+$("#fish_opacity_slider").on("input", function(){
+	params.fishtracks.options.fish_opacity = +this.value/10;
+	params.updateFunctions.updateFishOpacity(params.fishtracks.options);
+});
+
+$("#track_opacity_slider").on("input", function(){
+	params.fishtracks.options.track_opacity = +this.value/10;
+	params.updateFunctions.updateTrackOpacity(params.fishtracks.options);
+});
+
+
+var damfilename = "AllDamData.csv";
+var datapath="https://salmonetics.github.io/data-SRHydroPIT-tag/overshoot/"
+//var datapath="Overwinter/"
+var filename = datapath + "SteelheadOverwinter2010.csv";
+var urlParams = new URLSearchParams(window.location.search);
+if(urlParams.has('filename')){
+	filename=urlParams.get('filename')
+	var select = d3.select("#data_selector").node();
+	var selected=0;
+	for(i=0;i<select.options.length;i++){
+		if(datapath + select.options[i].value==filename)selected=i;
+	}
+	select.selectedIndex=selected;
+}
+
+function loadNewData(){
+	var select = d3.select("#data_selector").node();
+	var newfile = datapath + select.options[select.selectedIndex].value;
+	var newloc = document.location.pathname + "?filename=" + newfile;
+	document.location=newloc;
+}
+
+toggleDamFlows = function(checked){
+	if(checked)params.fishtracks.options.damflows = [{dam: "LWG",site:"GRJ"},{dam: "LGS",site:"GOJ"},{dam: "LMN",site:"LMJ"},{dam: "IHR",site:"ICH"}];
+	else params.fishtracks.options.damflows = []
+}
+
+toggleSnakeSites = function(checked){
+	if(checked)params.fishtracks.options.sites = ["GRJ","GOJ","LMJ","ICH"];
+	else params.fishtracks.options.sites = [];
+	params.updateFunctions = doTracks(params.fishtracks.options);
+}
+
+toggleFlowlines = function(checked){
+	if(checked)params.fishtracks.options.flowlines = [params.flowlines["GRJ-GOJ"],params.flowlines["GOJ-LMJ"],params.flowlines["LMJ-ICH"]];
+	else params.fishtracks.options.flowlines = [];
+	params.updateFunctions.updateFlowLines(params.fishtracks.options);
+}
+
+toggleDamFlows = function(checked){
+	if(checked)params.fishtracks.options.damflows = [{dam: "LWG",site:"GRJ"},{dam: "LGS",site:"GOJ"},{dam: "LMN",site:"LMJ"},{dam: "IHR",site:"ICH"},{dam: "MCN",site:"MCJ"}];
+	else params.fishtracks.options.damflows = []
+	params.updateFunctions.updateDamFlow(params.fishtracks.options);
+}
+
+function sbycColors(val){
+	var colors = {"N":"red", "U": "gray","Y":"green"}
+	return colors[val]
+}
+
+function runColors(val){
+	var colors = {"Fall":"red", "U": "gray","Spring":"green","Summer":"orange"}
+	return colors[val]
+}
+
+function lastyearColors(val){
+	var colors = {"N":"red", "U": "gray","Y":"green"}
+	return colors[val]
+}
+
+toggleFColor = function(value){
+	switch(value) {
+		case "subbasin":
+			params.fishtracks.options.fishcolor = function(d){
+				return subbasin.colorscale(d.subbasin)
+			}
+			break;	
+		case "rel_site":
+			params.fishtracks.options.fishcolor = function(d){
+				return relsite.colorscale(d.rel_site)
+			}
+			break;
+		case "rtype":
+			params.fishtracks.options.fishcolor = function(d){
+				return rtype.colorscale(d.rtype)
+			}
+			break;
+		case "rel_year":
+			params.fishtracks.options.fishcolor = function(d){
+				return year.colorscale(d.year)
+			}
+			break;	
+		case "run":
+			params.fishtracks.options.fishcolor = function(d){
+				return runColors(d.run)
+			}
+			break;
+		case "transport":
+			params.fishtracks.options.fishcolor = function(d){
+				return transport.colorscale(d.transported)
+			}
+			break;			
+		default:
+			params.fishtracks.options.fishcolor = function(d){return "#888888"}
+	}
+	params.fishtracks.options.trackcolor = params.fishtracks.options.fishcolor;
+	params.updateFunctions.updateFishColor(params.fishtracks.options);
+}
+
+var params = {
+	charts: {},
+	color_coding: "none",
+	selectFish: function(d){return ""},
+	addedFilters: [],
+	transit: {site1: "BO4", site2: "GRA"},
+	flowlines: {
+		"GRJ-GOJ": {site1: {id: "GRJ", dam: "LWG"}, site2: {id: "GOJ", dam: "LGS"}, volume: 565000, delta: 9780, elev: 738},
+		"GOJ-LMJ": {site1: {id: "GOJ", dam: "LGS"}, site2: {id: "LMJ", dam: "LMN"}, volume: 377000, delta: 6667, elev: 638},
+		"LMJ-ICH": {site1: {id: "LMJ", dam: "LMN"}, site2: {id: "ICH", dam: "IHR"}, volume: 407000, delta: 8300, elev: 540}
+	},
+	fishtracks: {
+		options:{
+			flowscale: 1,
+		}
+	}
+};
+var rtypes = {"H": "Hatchery","W": "Wild","U": "Unknown"};
+var detectionsDim; 
+var min_date,max_date,mindateDim,maxdateDim;
+var ndx,ndx2,all,fish,nfish;
+var caughtfish=[];
+var basin = dc.rowChart("#chart-basin");
+var subbasin = dc.pieChart("#pie-subbasin");
+var relsite = dc.pieChart("#pie-rel_site");
+var year = dc.pieChart("#pie-year");
+var rtype = dc.pieChart("#pie-rtype");
+var dsites = dc.pieChart("#pie-dsites");
+var inbasin = dc.pieChart("#pie-inbasin");
+var overwinter = dc.pieChart("#pie-overwinter");
+var overshoot = dc.pieChart("#pie-overshoot");
+var fishpath = dc.rowChart("#chart-fishpath");
+var run = dc.pieChart("#pie-run");
+var transport = dc.pieChart("#pie-transport");
+//var dsites2 = dc.pieChart("#pie-dsites2");
+var flength = dc.barChart("#chart-flength");
+//var rday = dc.barChart("#pie-rday");
+var dateFormat1 = d3.time.format("%Y-%m-%d");
+var dateFormat2 = d3.time.format("%Y-%m-%d %H:%M:%S");
+
+
+var getFish = function(csv){
+	data = [];
+	_data = {};
+
+	var bypass = ["GRX","GRJ","GOJ","LMJ","MCJ","JDJ","BCC","B2J"];
+ 
+	var setZone = function(fish,detection){
+		var year1 = parseInt(filename.substring(filename.length-8,filename.length-4));
+		var year2 = year1+1;
+		var year = detection.obs_date.getFullYear();
+		var yeartext,relzone,obszone,zonetext;
+		if(year >= year1 & year < year1+2){
+			if(year==year1)yeartext = "Year1";
+			else yeartext = "Year2";
+			relzone = sites_basins[fish.rel_site];
+			obszone = sites_basins[detection.obs_site];
+			if(obszone < relzone)zonetext = "Overshoot";
+			else if(obszone > relzone)zonetext = "Below Basin";
+			else zonetext = "In Basin";
+			zonetext = yeartext + "-" + zonetext;
+			//if(zonetext != "Year1-Below Basin"){
+				if(fish.zones.length>0){
+					if(fish.zones[fish.zones.length-1] != zonetext)fish.zones.push(zonetext);
+				}
+				else fish.zones.push(zonetext);
+				detection.zone = zonetext;
+			//}	
+		}
+	}
+ 
+  csv.forEach(function(d){
+    if(d.obs_site == "ICH" && d.ant=="FULL FLOW BYPASS")d.obs_site = "ICHFFB";
+	d.obs_date=dateFormat2.parse(d.date);
+	d.rel_date=dateFormat1.parse(d.rel_date);
+//	d.rel_day = d.rel_date.getDOY()
+	d.year = d.rel_date.getFullYear()
+	if(!d.sbyc)d.sbyc="U";
+	if(! _data[d.tag_id]){
+		_data[d.tag_id] = {
+			tag_id:d.tag_id,
+			rel_site:d.rel_site,
+			rel_date:d.rel_date,
+			year: d.year,
+//			rel_day: d.rel_day,
+			rtype:d.rtype,
+			run: d.run,
+			length: +d.length > 0 ? +d.length : 0,
+			detections: [],
+			dsites: [],
+			transported: "None",
+			jdetect: 0,
+			sbyc: d.sbyc,
+			lastyear: d.year,
+			subbasin: d.subbasin_name,
+			basin: basins[d.subbasin.toString().substring(0,6)].name,
+			zones: []
+			}
+	}
+	
+	setZone(_data[d.tag_id],d)
+	
+	if(bypass.includes(d.obs_site))_data[d.tag_id].jdetect++;
+	if(d.obs_date.getFullYear() > _data[d.tag_id].lastyear)_data[d.tag_id].lastyear = d.obs_date.getFullYear();
+	if(!_data[d.tag_id].dsites.includes(d.obs_site))_data[d.tag_id].dsites.push(d.obs_site);
+	var dets = _data[d.tag_id].detections;
+	if(d.transported=="TRUE")_data[d.tag_id].transported = d.obs_site;
+	var index = dets.length;
+	if(d.obs_site != "" && d.obs_site != "NONE")dets.push({
+		tag_id:d.tag_id,
+		obs_date:d.obs_date,
+		obs_site:d.obs_site,
+		rel_site: d.rel_site,
+		rel_date: d.rel_date,
+		rtype:d.rtype,
+		transported: d.transported,
+		etype: "detection",
+		sbyc: d.sbyc,
+		index: index + 1,
+		zone: d.zone
+	})
+  });
+  
+  Object.keys(_data).forEach(function(d){
+  /* don't add release site
+	_data[d].detections.push({
+		tag_id: _data[d].tag_id,
+		obs_date:_data[d].rel_date,
+		obs_site:_data[d].rel_site,
+		rel_site: _data[d].rel_site,
+		rel_date: _data[d].rel_date,
+		lastyear: _data[d].lastyear,
+		etype: "release",
+		rtype: _data[d].rtype,
+		length: _data[d].rel_length,
+		index: 0,
+		subbasin:_data[d].subbasin
+	})
+	*/
+	if(_data[d].detections.length>0)data.push(_data[d])
+  })
+  
+	data.forEach(function(d){
+		if(!d.detections[0])console.log(d)
+		d.detections.sort(function(a,b){
+			return a.obs_date-b.obs_date;
+		})
+		d.min_date = d.detections[0].obs_date;
+		d.max_date = d.detections[d.detections.length-1].obs_date;
+	});
+	return data;
+}
+
+function getHourRounded(_date) {
+    //date.setHours(date.getHours() + Math.round(date.getMinutes()/60) + Math.round(date.getSeconds()/3600));
+	var date = new Date(_date);
+	date.setHours(0);
+    date.setMinutes(0);
+	date.setSeconds(0);
+	date.setMilliseconds(0);
+    return date;
+}
+
+
+
+var doTravelTimes = function(){
+	d3.select("#transit_filter").style("visibility","hidden")
+	var site1 = params.transit.site1;
+	var site2 = params.transit.site2;
+	var transitions = [];
+	var data = detectionsDim.top(Infinity);
+	var ttmax=0;
+	data.forEach(function(d){
+		var tt;
+		var dsites = [];
+		var pos1 = -1;
+		var index = 0;
+		while(pos1 < 0 & index < d.detections.length-1){
+			if(d.detections[index].obs_site==site1){
+				pos1=index;
+				pos2=pos1;
+				index++;
+				while(pos2<index & index < d.detections.length){					
+					if(d.detections[index].obs_site==site2){					
+						pos2=index;
+						var tstring = "";
+						var prev = "";
+						for(i=pos1;i<=pos2;i++){
+							if(d.detections[i].obs_site != prev){
+								tstring += d.detections[i].obs_site;
+								if(i<pos2)tstring += "-";
+							}
+							prev = d.detections[i].obs_site;
+						}
+						tt = Math.round((d.detections[pos2].obs_date - d.detections[pos1].obs_date)/(1000*60*60*24))
+						transitions.push({fish: d, detection1: pos1, detection2: pos2, tstring: tstring, ttime: tt, tsite1: d.detections[pos1].obs_date, tsite2: d.detections[pos2].obs_date, hour1: d.detections[pos1].obs_date.getHours()});
+						ttmax = tt > ttmax ? tt : ttmax;
+					}	
+					else index++;
+				}
+			}
+			index++;
+		}
+	});
+	params.transitions = transitions;
+	if(transitions.length>0){
+		//var transit = dc.pieChart("#pie-transit","transit_charts");
+		var transit = dc.rowChart("#pie-transit","transit_charts");
+		var traveltime = dc.barChart("#chart-traveltime","transit_charts");
+		//var travelxy = dc.scatterPlot("#chart-travelxy","transit_charts");
+		var tsite1 = dc.barChart("#chart-tsite1","transit_charts");
+		var tsite2 = dc.barChart("#chart-tsite2","transit_charts");
+		//var hour1 = dc.barChart("#pie-hour1","transit_charts");
+		
+		ndx2 = crossfilter(transitions);
+		var transitDim = ndx2.dimension(function(d) {return d.tstring;});
+		var transitGroup = transitDim.group();
+		var traveltimeDim = ndx2.dimension(function(d) {return d.ttime;})
+		//var travelxyDim = ndx2.dimension(function(d) {return d.ttime;})
+		var tsite1Dim = ndx2.dimension(function(d) {return getHourRounded(d.tsite1);});
+		var tsite2Dim = ndx2.dimension(function(d) {return getHourRounded(d.tsite2);});
+		//var hour1Dim = ndx2.dimension(function(d) {return d.hour1;});
+		
+		var minDate1 = tsite1Dim.bottom(1)[0].tsite1;
+		var maxDate1 = tsite1Dim.top(1)[0].tsite1;
+		var minDate2 = tsite2Dim.bottom(1)[0].tsite2;
+		var maxDate2 = tsite2Dim.top(1)[0].tsite2;
+		
+		transit
+			.width(400)
+			.height(transitGroup.size()*30 + 40)
+			.margins({top: 0, left: 0, right: 10, bottom: 40})
+			.dimension(transitDim)
+			.elasticX(true)
+			.group(transitGroup)
+			.transitionDuration(100)		
+			.ordering(function(d) { return d.key.length});
+			
+		traveltime
+			.width(400)
+			.height(200)
+			.margins({top: 10, right: 50, bottom: 35, left: 30})
+			.y(d3.scale.linear())
+			.elasticY(true)
+			.x(d3.scale.linear().domain([0,ttmax]))
+			.dimension(traveltimeDim)
+			.group(traveltimeDim.group())
+			.on('postRender', function() {
+				traveltime.svg().append('text').attr('text-anchor', 'middle')
+				.attr('x', traveltime.width()/2).attr('y', traveltime.height()-5)
+				.text("Total Days " + params.transit.site1 + "-" + params.transit.site2)
+			})
+		.on('postRedraw',function(){
+			caughtfish=[];
+			if(!!dc.chartRegistry.list("transit_charts").filter(function(c) { return c.hasFilter(); }).length){
+				d3.select("#transit_filter").style("visibility","visible")
+				transitDim.top(Infinity).forEach(function(dd){
+					caughtfish.push(dd.fish);
+				})
+			}
+			else d3.select("#transit_filter").style("visibility","hidden")
+		});
+		
+		tsite1
+			.width(400)
+			.height(150)
+			.transitionDuration(200)
+			.brushOn(true)
+			.dimension(tsite1Dim) //your dimension created from crossfilter
+			.group(tsite1Dim.group()) // your group
+			.elasticY(true)
+			.renderHorizontalGridLines(true)
+			.renderVerticalGridLines(true)
+			.x(d3.time.scale().domain([minDate1,maxDate1])) //these are the dates we created before this step so that the scale fits according to our data
+			.yAxis().tickFormat(d3.format("s"));
+
+		tsite2
+			.width(400)
+			.height(150)
+			.transitionDuration(200)
+			.brushOn(true)
+			.dimension(tsite2Dim) //your dimension created from crossfilter
+			.group(tsite2Dim.group()) // your group
+			.elasticY(true)
+			.renderHorizontalGridLines(true)
+			.renderVerticalGridLines(true)
+			.x(d3.time.scale().domain([minDate2,maxDate2])) //these are the dates we created before this step so that the scale fits according to our data
+			.yAxis().tickFormat(d3.format("s"));
+
+		params.charts.transit = transit;
+		params.charts.traveltime = traveltime;
+		params.charts.tsite1 = tsite1;
+		params.charts.tsite2 = tsite2;
+		//params.charts.hour1 = hour1;
+		dc.renderAll("transit_charts")
+		d3.selectAll(".dc-chart g.row text").style("fill","black");
+		
+		
+		var opt1 = d3.select("#tsite1").style("width",100);
+		var opt2 = d3.select("#tsite2").style("width",100);
+		opt1.selectAll("option").remove();
+		opt2.selectAll("option").remove();
+		opt1
+			.selectAll("option")
+			.data(dsites.data())
+			.enter()
+			.append("option")
+			  .text(function (d) { return d.key; })
+			  .property('value',function(d){return d.key})
+			  .property('selected',function(d){return d.key==params.transit.site1})
+		opt2
+			.selectAll("option")
+			.data(dsites.data())
+			.enter()
+			.append("option")
+			  .text(function (d) { return d.key; })
+			  .property('value',function(d){return d.key})
+			  .property('selected',function(d){return d.key==params.transit.site2})
+
+		opt1.on("change",function(){
+			params.transit.site1 = dsites.data()[this.selectedIndex].key;
+			//doTravelTimes();
+		});
+		opt2.on("change",function(){
+			params.transit.site2 = dsites.data()[this.selectedIndex].key;
+			//doTravelTimes();
+		});	
+	}	
+}
+
+//override getColor
+/*
+var getColor = function(d){
+var color = d3.scale.category10();	
+return color(d.GRJ_day);
+}
+*/
+
+d3.csv(filename, function(error, csv) {
+  if (error) return console.warn(error);
+//d3.csv(damfilename, function(error1, damdata) {
+//  if (error1) return console.warn(error1);  
+
+  
+fish = getFish(csv);
+  
+var cur_id = "";
+
+	
+ndx = crossfilter(data); 
+
+all = ndx.groupAll();
+
+dc.dataCount("#dc-data-count")
+        .dimension(ndx)
+        .group(all)
+					
+mindateDim = ndx.dimension(function(d) {return d.min_date;});
+maxdateDim = ndx.dimension(function(d) {return d.max_date;});
+
+tagDim = ndx.dimension(function(d) {return d.tag_id;});
+var relsiteDim = ndx.dimension(function(d) {return d.rel_site;});
+//var subbasinDim = ndx.dimension(function(d) {return d.subbasin;});
+var relsiteGroup = relsiteDim.group();
+//var subbasinGroup = subbasinDim.group();
+var yearDim = ndx.dimension(function(d) {return d.year;});
+//var rdayDim = ndx.dimension(function(d) {return d.rel_day;});
+	detectionsDim = ndx.dimension(function(d) {return d.detections;});
+var dsitesDim = ndx.dimension(function(d) {return d.dsites;},true);	
+var yearGroup = yearDim.group();
+var rtypeDim = ndx.dimension(function(d) {return d.rtype;});
+var rtypeGroup = rtypeDim.group();
+var flengthDim = ndx.dimension(function(d) {return d.length;});
+var transportDim = ndx.dimension(function(d) {return d.transported;})
+var runDim = ndx.dimension(function(d) {return d.run;})
+var subbasinDim = ndx.dimension(function(d) {return d.subbasin;})
+var basinDim = ndx.dimension(function(d) {return d.basin;});
+
+
+var inbasinDim = ndx.dimension(function(d) {if(d.zones.indexOf("Year1-In Basin")>-1 | d.zones.indexOf("Year2-In Basin")>-1)return true;else return false})
+var overwinterDim = ndx.dimension(function(d) {if(d.zones.indexOf("Year2-In Basin")>-1 | d.zones.indexOf("Year2-Overshoot")>-1 | d.zones.indexOf("Year2-Below Basin")>-1)return true;else return false}) 
+var overshootDim = ndx.dimension(function(d) {if(d.zones.indexOf("Year1-Overshoot")>-1 | d.zones.indexOf("Year2-Overshoot")>-1)return true;else return false}) 
+
+
+var fishpathDim = ndx.dimension(function(d){
+	var path = ""
+	d.zones.forEach(function(dd,i){
+		if(i>0) path += " - ";
+		path += dd;
+	})
+	return path;
+	//console.log(path)
+}); 
+
+inbasin
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)
+    .dimension(inbasinDim)
+    .group(inbasinDim.group())
+	.renderLabel(true)
+	.legend(dc.legend().x(160).y(10).itemHeight(13).gap(5));
+	
+overwinter
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)
+    .dimension(overwinterDim)
+    .group(overwinterDim.group())
+	.renderLabel(true)
+	.legend(dc.legend().x(160).y(10).itemHeight(13).gap(5));
+
+overshoot
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)
+    .dimension(overshootDim)
+    .group(overshootDim.group())
+	.renderLabel(true)
+	.legend(dc.legend().x(160).y(10).itemHeight(13).gap(5));
+
+fishpath
+	.width(600)
+	.height(1800)
+	.margins({top: 0, left: 5, right: 40, bottom: 20})
+    .dimension(fishpathDim)
+    .group(fishpathDim.group())
+	.elasticX(true)
+	.transitionDuration(100)
+	//.fixedBarHeight(14)
+	.ordering(function(d) { return -d.value})
+	
+
+year
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)	
+    .dimension(yearDim)
+    .group(yearGroup)
+	.legend(dc.legend().x(150).y(10).itemHeight(13).gap(5))
+	.on('postRedraw',function(d){
+		drawSliders();
+		//doTravelTimes();
+		params.updateFunctions = doTracks(params.fishtracks.options);
+	});
+	
+basin
+	.width(325)
+	.height(400)
+	.margins({top: 0, left: 5, right: 40, bottom: 20})
+    .dimension(basinDim)
+    .group(basinDim.group())
+	.elasticX(true)
+	.transitionDuration(100)
+	
+	
+subbasin
+	.data(function(group){
+		return group.all().filter(function(kv) {
+			return kv.value>0; 
+		})
+	})
+    .width(350)
+    .height(200)
+    .radius(70)
+	.cx(70)
+	.cy(80)
+    .dimension(subbasinDim)
+    .group(subbasinDim.group())
+	.renderLabel(false)
+	.legend(dc.legend().x(160).y(10).itemHeight(13).gap(5));	
+								
+relsite
+	.data(function(group){
+		return group.all().filter(function(kv) {
+			return kv.value>0; 
+		})
+	})
+    .width(350)
+    .height(200)
+    .radius(70)
+	.cx(70)
+	.cy(80)
+    .dimension(relsiteDim)
+    .group(relsiteGroup)
+	.renderLabel(false)
+	.legend(dc.legend().x(160).y(10).itemHeight(13).gap(5));
+
+	
+rtype
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)	
+    .dimension(rtypeDim)
+    .group(rtypeGroup)
+	.legend(dc.legend().x(150).y(10).itemHeight(13).gap(5));
+
+transport
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)	
+    .dimension(transportDim)
+    .group(transportDim.group())
+	.legend(dc.legend().x(150).y(10).itemHeight(13).gap(5));
+
+run
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)	
+    .dimension(runDim)
+    .group(runDim.group())
+	.legend(dc.legend().x(150).y(10).itemHeight(13).gap(5));		
+	
+dsites
+	.data(function(group){
+		return group.all().filter(function(kv) {
+			return kv.value>0; 
+		})
+	})
+    .width(350)
+    .height(150)
+    .radius(70)
+	.cx(70)
+	.cy(80)
+    .dimension(dsitesDim)
+    .group(dsitesDim.group())
+	.legend(dc.legend().x(160).y(10).itemHeight(13).gap(5));
+	
+	
+flength
+	.width(350)
+    .height(150)
+    .margins({top: 10, right: 50, bottom: 30, left: 20})
+	.y(d3.scale.linear())
+    .elasticY(true)
+	.x(d3.scale.linear().domain([50,250]))
+    .dimension(flengthDim)
+    .group(flengthDim.group());
+	
+	dc.renderAll();
+	
+	relsite.colorscale = d3.scale.category20c().domain(relsite.colorDomain())
+	subbasin.colorscale = d3.scale.category20c().domain(subbasin.colorDomain())
+	rtype.colorscale = d3.scale.category20c().domain(rtype.colorDomain())
+	year.colorscale = d3.scale.category20c().domain(year.colorDomain())
+	transport.colorscale = d3.scale.category20c().domain(transport.colorDomain())
+	
+	params.sliders = [dsites,relsite];
+	drawSliders();
+	
+	min_date = mindateDim.bottom(1)[0].min_date;
+	max_date = maxdateDim.top(1)[0].max_date;
+	min_date = dateFormat1.parse(dateFormat1(min_date));
+	max_date = dateFormat1.parse(dateFormat1(max_date));
+
+	min_date.setTime( min_date.getTime() - 5 * 86400000 );
+	max_date.setTime( max_date.getTime() + 5 * 86400000 );
+
+	/*
+	params.damdata = {} 
+	damdata.forEach(function(d){
+		d.Date = dateFormat1.parse(d.Date)
+		if(d.Date >= min_date & d.Date <= max_date){
+			if(!params.damdata[d.Project])params.damdata[d.Project] = {};
+			if(!params.damdata[d.Project][d.Date])params.damdata[d.Project][d.Date] = d;
+			d.Outflow = +d.Outflow;
+			d.Inflow = +d.Inflow;
+			d.Spill = +d.Spill;
+			d.TempSC = +d.TempSC;
+			d.Temp = +d.Temp;
+			d.TempTW = +d.TempTW;
+			d.Dgas = +d.Dgas;
+			d.DgasTW = +d.DgasTW;
+			d.Elev = +d.Elev;
+		}
+	})
+	params.flowtimes = {}
+	Object.keys(params.flowlines).forEach(function(d){
+		var segment = params.flowlines[d];
+		segment.data = [];
+		Object.keys(params.damdata[segment.site1.dam]).forEach(function(dd){
+			var startday = params.damdata[segment.site1.dam][dd];
+			var ttime = 43.56*(segment.volume-(segment.elev-startday.Elev)*segment.delta)/startday.Outflow;
+			if(ttime > 0){
+				var time2 = startday.Date + ttime;
+				var stopday = new Date(startday.Date)
+				stopday.setSeconds(stopday.getSeconds() + ttime)
+				//stopday = new Date(stopday.getFullYear(), stopday.getMonth(), stopday.getDate(), 0, 0, 0);
+				//stopday = params.damdata[segment.site2.dam][stopday];
+				//if(stopday){
+					//var ttime2 = 43.56*(segment.volume-(segment.elev-startday.Elev)*segment.delta)/stopday.Outflow;
+					//ttime = (ttime+ttime2)/2
+					//stopday = new Date(startday.Date)
+					//stopday.setSeconds(stopday.getSeconds() + ttime)
+					segment.data.push({
+						date1: startday.Date,
+						site1: segment.site1.id,
+						temperature: startday.Temp,
+						flow: startday.Outflow,
+						spill: startday.Spill,
+						gas1: startday.Degas,
+						date2: stopday,
+						site2: segment.site2.id,
+						tdays: ttime/(3600*24)
+					})
+				//}
+			}	
+		})
+		
+		
+	})
+	*/
+	
+	params.updateFunctions = doTracks(params.fishtracks.options);
+	//doTravelTimes();
+	
+	document.getElementById("spinner").style.visibility = 'hidden'; 
+
+	var setFilterToggle = function(chart,id){
+		var svg = chart.svg();
+		d3.select("#" + id)
+			.select("strong")
+			.on("click",function(){
+				if(svg.style("display")=="inline")svg.style("display","none")
+				else {
+					svg.style("display","inline")
+					chart.redraw()
+				}
+			})
+			.style("cursor","pointer")
+	}
+	setFilterToggle(relsite,"pie-rel_site")
+	setFilterToggle(rtype,"pie-rtype")
+	setFilterToggle(year,"pie-year")
+	setFilterToggle(dsites,"pie-dsites")
+	setFilterToggle(flength,"chart-flength") 
+	setFilterToggle(transport,"pie-transport")
+	setFilterToggle(subbasin,"pie-subbasin")
+	setFilterToggle(run,"pie-run")
+//	setFilterToggle(rday,"pie-rday")	
+//});
+	d3.selectAll(".dc-chart g.row text").style("fill","black");
+});
+
+
+var color_coding = "none";
+
+
+</script>
+<script>
+Date.prototype.isLeapYear = function() {
+    var year = this.getFullYear();
+    if((year & 3) != 0) return false;
+    return ((year % 100) != 0 || (year % 400) == 0);
+};
+Date.prototype.getDOY = function() {
+    var dayCount = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+    var mn = this.getMonth();
+    var dn = this.getDate();
+    var dayOfYear = dayCount[mn] + dn;
+    if(mn > 1 && this.isLeapYear()) dayOfYear++;
+    return dayOfYear;
+};
+
+$(".checkbox-dropdown").click(function () {
+    $(this).toggleClass("is-active");
+});
+
+$(".checkbox-dropdown ul").click(function(e) {
+    e.stopPropagation();
+});
+
+$(".checkbox-dropdown2").click(function () {
+	console.log("yo")
+    $(this).toggleClass("is-active");
+});
+
+$(".checkbox-dropdown2 ul").click(function(e) {
+    e.stopPropagation();
+});
+</script>
+
+<script>
+//function which adds a true/false filter with true indicated by a hash of the tag_ids
+var addDelayedFilter = function(filterlabel){
+		//paste hash array of delayed tags to clipboard var delayed = "..."
+		var filtername = "var" + params.addedFilters.length;
+		//var filterlabel = document.getElementById('filterlabel2').value;
+		var newdiv = d3.select("#filter3").append("div").attr("id","pie-" + filtername)
+		newdiv.append("div").append("strong").html(filterlabel)
+		var reset = newdiv.append("a")
+			.attr("class","reset")
+			.style("display","none")
+		var newfilter = dc.pieChart("#pie-" + filtername)
+		params.addedFilters.push({label: filterlabel, filter: newfilter});
+		fish.forEach(function(d){d[filtername]= !delayed[d.tag_id] ? false : true;
+		})
+		//caughtfish.forEach(function(d){d[filtername]=true})
+		var dim = ndx.dimension(function(d) {return d[filtername];});
+		newfilter
+			.width(350)
+			.height(175)
+			.radius(70)
+			.cx(70)
+			.cy(80)	
+			.dimension(dim)
+			.group(dim.group())
+			.label(function (d) {
+				if (newfilter.hasFilter() && !newfilter.hasFilter(d.key)) {
+					return d.key + '(0%)';
+				}
+				var label = d.key;
+				if (all.value()) {
+					label += ' (' + Math.floor(d.value / all.value() * 100) + '%)';
+				}
+				return label;
+			})			
+			.legend(dc.legend().x(150).y(10).itemHeight(13).gap(5))			
+			
+		reset.on("click",function(){
+			newfilter.filterAll();
+			dc.redrawAll();
+		})
+		newfilter.render();
+		document.getElementById("filterlabel").value = ""
+} 
+
+var basins = {
+"170101": {name: "Kootenai", latitude: 48.5, longitude: -115.5235},
+"170102": {name: "Pend Oreille", latitude: 48, longitude: -114.9479},
+"170103": {name: "Spokane", latitude: 47.75, longitude: -115.4},
+"170200": {name: "Upper Columbia", latitude: 47.95625, longitude: -120.1890},
+"170300": {name: "Yakima", latitude: 46.66245, longitude: -120.6642},
+"170401": {name: "Snake Headwaters", latitude: 44, longitude: -116},
+"170402": {name: "Upper Snake", latitude: 44, longitude: -117},
+"170501": {name: "Middle Snake-Boise", latitude: 44.73, longitude: -118},
+"170502": {name: "Middle Snake-Powder", latitude: 44.73, longitude: -117.45},
+"170601": {name: "Lower Snake", latitude: 45.75422, longitude: -117.4659},
+"170602": {name: "Salmon", latitude: 44.93850, longitude: -114.9479},
+"170603": {name: "Clearwater", latitude: 46.19148, longitude: -115.5235},
+"170701": {name: "Middle Columbia", latitude: 45.87265, longitude: -119.7252},
+"170702": {name: "John Day", latitude: 44.81256, longitude: -119.4764},
+"170703": {name: "Deschutes", latitude: 44.79145, longitude: -121.1090},
+"170800": {name: "Lower Columbia", latitude: 46.09247, longitude: -122.2330},
+"170900": {name: "Willamette", latitude: 44.81256, longitude: -122.2330},
+"171001": {name: "Washington Coastal", latitude: 47.16125356933019, longitude: -123.79375847993488},
+"171002": {name: "Northern Oregon Coastal",latitude: 44.89154584809262, longitude: -123.83205145901715},
+"171003": {name: "Southern Oregon Coastal",latitude: 42.79432543115027, longitude: -123.5379571311292},
+"171200": {name: "Oregon Closed Basins (Malheur)",latitude: 42.8, longitude: -119.5},
+"171100": {name: "Puget Sound", latitude: 47.75, longitude: -122.23} 
+}
+
+</script>
+</html>
