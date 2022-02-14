@@ -15,6 +15,12 @@
 	<script type="text/javascript" src="SitesBasins.js"></script>
 	<script type="text/javascript" src="CrossTrack5a.js"></script>
 	<style>
+
+.download_button {
+	height: 25px;
+	margin-top: 5px;
+	margin-right: 5px;
+}
 	
 .chart_var	{
 	width: 400px;
@@ -405,9 +411,10 @@ li{
 	<option value="inbasin_total">fraction of returned fish detected in-basin</option>
 	<option value="below_total">fraction of returned fish last detected below basin</option>
 	</select>
-</td>
-<td><button type="button" id="download_button">Download Chart Data</button></td>
-</tr></table>
+	</td>
+	<!--<td align="right" width="600"><button type="button" id="download_button">Download Chart Data</button></td>-->
+	<td align="right">&nbsp;<a id="download_button" title="Download Chart Data"><img class="download_button" src="download.png" height="30"/></a></td>
+	</tr></table>
 		<div id="barchart">
 		</div>
 	</div>
@@ -461,9 +468,10 @@ $("#track_opacity_slider").on("input", function(){
 
 var damfilename = "AllDamData.csv";
 var datapath="https://salmonetics.github.io/data-SRHydroPIT-tag/overshoot/"
+datapath = ""//temp
 //var datapath="Overwinter/"
 var filename = datapath + "shAll_collapsed.csv";
-
+filename = "shAll_collapsed_2010-2020.csv"
 
 function toggleShowJuvenile(checked){
 	params.fishtracks.options.showjuvs=checked;
